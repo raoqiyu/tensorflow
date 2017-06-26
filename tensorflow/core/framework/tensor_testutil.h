@@ -1,4 +1,4 @@
-/* Copyright 2015 Google Inc. All Rights Reserved.
+/* Copyright 2015 The TensorFlow Authors. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@ limitations under the License.
 
 #ifndef TENSORFLOW_FRAMEWORK_TENSOR_TESTUTIL_H_
 #define TENSORFLOW_FRAMEWORK_TENSOR_TESTUTIL_H_
+
+#include <numeric>
 
 #include "tensorflow/core/framework/tensor.h"
 #include "tensorflow/core/lib/gtl/array_slice.h"
@@ -187,10 +189,10 @@ struct Expector<T, true> {
     }
   }
 
-  static void Near(const T& a, const T& b, const double abs_err) {
+  static void Near(const T& a, const T& b, const double abs_err, int index) {
     if (a != b) {  // Takes care of inf.
-      EXPECT_LE(double(Eigen::numext::abs(a - b)), abs_err) << "a = " << a
-                                                            << " b = " << b;
+      EXPECT_LE(double(Eigen::numext::abs(a - b)), abs_err)
+          << "a = " << a << " b = " << b << " index = " << index;
     }
   }
 
@@ -200,7 +202,7 @@ struct Expector<T, true> {
     auto a = x.flat<T>();
     auto b = y.flat<T>();
     for (int i = 0; i < a.size(); ++i) {
-      Near(a(i), b(i), abs_err);
+      Near(a(i), b(i), abs_err, i);
     }
   }
 };
